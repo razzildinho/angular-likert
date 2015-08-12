@@ -227,11 +227,15 @@
                             newData.data[d].four +
                             newData.data[d].five;
 
-                        var oneCircleSize = newData.data[d].one/totalParticipants != 0 ? (60 - 40 * ( 1 - (newData.data[d].one/totalParticipants) )) : 10;
-                        var twoCircleSize = newData.data[d].two/totalParticipants != 0 ? (60 - 40 * ( 1 - (newData.data[d].two/totalParticipants) )) : 10;
-                        var threeCircleSize = newData.data[d].three/totalParticipants != 0 ? (60 - 40 * ( 1 - (newData.data[d].three/totalParticipants) )) : 10;
-                        var fourCircleSize = newData.data[d].four/totalParticipants != 0 ? (60 - 40 * ( 1 - (newData.data[d].four/totalParticipants) )) : 10;
-                        var fiveCircleSize = newData.data[d].five/totalParticipants != 0 ? (60 - 40 * ( 1 - (newData.data[d].five/totalParticipants) )) : 10;
+                        var calculateSize = function(percentage){
+                            return Math.sqrt( ( 800 * percentage) + 100 );
+                        };
+
+                        var oneCircleSize = newData.data[d].one/totalParticipants != 0 ? calculateSize(newData.data[d].one/totalParticipants) : 10;
+                        var twoCircleSize = newData.data[d].two/totalParticipants != 0 ? calculateSize(newData.data[d].two/totalParticipants) : 10;
+                        var threeCircleSize = newData.data[d].three/totalParticipants != 0 ? calculateSize(newData.data[d].three/totalParticipants) : 10;
+                        var fourCircleSize = newData.data[d].four/totalParticipants != 0 ? calculateSize(newData.data[d].four/totalParticipants) : 10;
+                        var fiveCircleSize = newData.data[d].five/totalParticipants != 0 ? calculateSize(newData.data[d].five/totalParticipants) : 10;
                         
                         svg.append('circle')
                             .attr('stroke', '#504432')
