@@ -114,7 +114,7 @@
                         svg.append('text')
                             .attr("x", 465+t*150)
                             .attr("y", 30)
-                            .text(String(t))
+                            .text(String(t+1))
                             .attr("fill", '#414141')
                             .attr("text-anchor", "middle")
                             .style("font-family", "Arial")
