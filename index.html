@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Likert chart creator</title>
+    <link rel="stylesheet" href="./bootstrap.min.css">
+    <script type="text/javascript" src="./jquery.min.js"></script>
+    <script type="text/javascript" src="./d3.min.js"></script>
+    <script type="text/javascript" src="./angular.min.js"></script>
+    <script type="text/javascript" src="./angular-likert.js"></script>
+  </head>
+  <body ng-app="likert" ng-controller="likertCtrl as likert">
+    <div class="container">
+      <h2>Likert graph creater</h2>
+      <div class="well">
+        <form class="form-horizontal">
+          <div class="form-group">
+            <label class="control-label col-xs-3">Label for number 1 <span class=text-muted>(Optional)</span></label>
+            <div class="col-xs-9">
+              <input class="form-control" type="text" ng-model="likert.chartData.oneLabel">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="control-label col-xs-3">Label for number 5 <span class=text-muted>(Optional)</span></label>
+            <div class="col-xs-9">
+              <input class="form-control" type="text" ng-model="likert.chartData.fiveLabel">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="well">
+        <form ng-submit="likert.addRow()" class="form-horizontal" name="likert.likertForm" novalidate>
+          <h4>Add row to chart</h4>
+          <div class="form-group">
+            <label class="control-label col-xs-1">Question</label>
+            <div class="col-xs-11">
+              <input class="form-control" type="text" name="question" ng-model="likert.newRow.question" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="control-label col-xs-1">1</label>
+            <div class="col-xs-1">
+              <input class="form-control" name="one" type="number" ng-model="likert.newRow.one" required>
+            </div>
+            <label class="control-label col-xs-1">2</label>
+            <div class="col-xs-1">
+              <input class="form-control" name="two" type="number" ng-model="likert.newRow.two" required>
+            </div>
+            <label class="control-label col-xs-1">3</label>
+            <div class="col-xs-1">
+              <input class="form-control" name="three" type="number" ng-model="likert.newRow.three" required>
+            </div>
+            <label class="control-label col-xs-1">4</label>
+            <div class="col-xs-1">
+              <input class="form-control" name="four" type="number" ng-model="likert.newRow.four" required>
+            </div>
+            <label class="control-label col-xs-1">5</label>
+            <div class="col-xs-1">
+              <input class="form-control" name="five" type="number" ng-model="likert.newRow.five" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-xs-12">
+              <button class="btn btn-primary" type="submit">Add row</button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="well" ng-show="likert.chartData.data.length > 0">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <td>
+              <th>1<span ng-show="likert.chartData.oneLabel">&nbsp;({{likert.chartData.oneLabel}})</th>
+              <th>2</th>
+              <th>3</th>
+              <th>4</th>
+              <th>5<span ng-show="likert.chartData.fiveLabel">&nbsp;({{likert.chartData.fiveLabel}})</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="dataRow in likert.chartData.data track by $index">
+              <td>{{dataRow.question}}</td>
+              <td>{{dataRow.one}}</td>
+              <td>{{dataRow.two}}</td>
+              <td>{{dataRow.three}}</td>
+              <td>{{dataRow.four}}</td>
+              <td>{{dataRow.five}}</td>
+              <td><button class="btn btn-danger btn-xs" type="button" ng-click="likert.removeRow($index)"><span class="glyphicon glyphicon-remove"></span></button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top: 100px; margin-bottom: 100px;" likert-chart chart-data="likert.chartData"></div>
+    </div>
+  </body>
+</html>
