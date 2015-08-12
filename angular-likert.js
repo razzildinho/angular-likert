@@ -228,18 +228,18 @@
                             newData.data[d].five;
 
                         var calculateSize = function(percentage){
-                            return Math.sqrt( ( 800 * percentage) + 100 );
+                            var size = 2 * Math.sqrt( 900 * percentage )
+                            return size >= 6 ? size : 6;
                         };
 
-                        var oneCircleSize = newData.data[d].one/totalParticipants != 0 ? calculateSize(newData.data[d].one/totalParticipants) : 10;
-                        var twoCircleSize = newData.data[d].two/totalParticipants != 0 ? calculateSize(newData.data[d].two/totalParticipants) : 10;
-                        var threeCircleSize = newData.data[d].three/totalParticipants != 0 ? calculateSize(newData.data[d].three/totalParticipants) : 10;
-                        var fourCircleSize = newData.data[d].four/totalParticipants != 0 ? calculateSize(newData.data[d].four/totalParticipants) : 10;
-                        var fiveCircleSize = newData.data[d].five/totalParticipants != 0 ? calculateSize(newData.data[d].five/totalParticipants) : 10;
+                        var oneCircleSize = calculateSize(newData.data[d].one/totalParticipants);
+                        var twoCircleSize = calculateSize(newData.data[d].two/totalParticipants);
+                        var threeCircleSize = calculateSize(newData.data[d].three/totalParticipants);
+                        var fourCircleSize = calculateSize(newData.data[d].four/totalParticipants);
+                        var fiveCircleSize = calculateSize(newData.data[d].five/totalParticipants);
                         
                         svg.append('circle')
                             .attr('stroke', '#504432')
-                            .attr('stroke-opacity', 0.5)
                             .attr('fill', '#CD7B00')
                             .attr('fill-opacity', (oneCircleSize-10)/50)
                             .attr('r', oneCircleSize/2)
@@ -248,7 +248,7 @@
 
                         svg.append('text')
                             .attr("x", 465)
-                            .attr("y", rowStart + 95)
+                            .attr("y", rowStart + 90)
                             .text((newData.data[d].one*100/totalParticipants).toFixed(0)+'%')
                             .attr("fill", '#414141')
                             .attr("text-anchor", "middle")
@@ -257,7 +257,6 @@
 
                         svg.append('circle')
                             .attr('stroke', '#504432')
-                            .attr('stroke-opacity', 0.5)
                             .attr('fill', '#CD7B00')
                             .attr('fill-opacity', (twoCircleSize-10)/50)
                             .attr('r', twoCircleSize/2)
@@ -266,7 +265,7 @@
 
                         svg.append('text')
                             .attr("x", 615)
-                            .attr("y", rowStart + 95)
+                            .attr("y", rowStart + 90)
                             .text((newData.data[d].two*100/totalParticipants).toFixed(0)+'%')
                             .attr("fill", '#414141')
                             .attr("text-anchor", "middle")
@@ -275,7 +274,6 @@
 
                         svg.append('circle')
                             .attr('stroke', '#504432')
-                            .attr('stroke-opacity', 0.5)
                             .attr('fill', '#CD7B00')
                             .attr('fill-opacity', (threeCircleSize-10)/50)
                             .attr('r', threeCircleSize/2)
@@ -284,7 +282,7 @@
 
                         svg.append('text')
                             .attr("x", 765)
-                            .attr("y", rowStart + 95)
+                            .attr("y", rowStart + 90)
                             .text((newData.data[d].three*100/totalParticipants).toFixed(0)+'%')
                             .attr("fill", '#414141')
                             .attr("text-anchor", "middle")
@@ -293,7 +291,6 @@
 
                         svg.append('circle')
                             .attr('stroke', '#504432')
-                            .attr('stroke-opacity', 0.5)
                             .attr('fill', '#CD7B00')
                             .attr('fill-opacity', (fourCircleSize-10)/50)
                             .attr('r', fourCircleSize/2)
@@ -302,7 +299,7 @@
 
                         svg.append('text')
                             .attr("x", 915)
-                            .attr("y", rowStart + 95)
+                            .attr("y", rowStart + 90)
                             .text((newData.data[d].four*100/totalParticipants).toFixed(0)+'%')
                             .attr("fill", '#414141')
                             .attr("text-anchor", "middle")
@@ -311,7 +308,6 @@
 
                         svg.append('circle')
                             .attr('stroke', '#504432')
-                            .attr('stroke-opacity', 0.5)
                             .attr('fill', '#CD7B00')
                             .attr('fill-opacity', (fiveCircleSize-10)/50)
                             .attr('r', fiveCircleSize/2)
@@ -320,7 +316,7 @@
 
                         svg.append('text')
                             .attr("x", 1065)
-                            .attr("y", rowStart + 95)
+                            .attr("y", rowStart + 90)
                             .text((newData.data[d].five*100/totalParticipants).toFixed(0)+'%')
                             .attr("fill", '#414141')
                             .attr("text-anchor", "middle")
