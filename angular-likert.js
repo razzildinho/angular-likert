@@ -23,6 +23,9 @@
             five: null
         };
 
+        $scope.showPng = true;
+        $scope.showSvg = false;
+
         $scope.addRow = function(){
             if ($scope.likertForm.$invalid){
                 return false;
@@ -70,7 +73,8 @@
 
                     var svg = d3.select($element[0]).append('svg')
                         .attr('width', width)
-                        .attr('height', height);
+                        .attr('height', height)
+                        .attr('id', 'chartSVG');
 
                     svg.append('rect')
                         .attr('fill', '#fff')
@@ -176,7 +180,7 @@
 
                         }
 
-                        if (newData.data[d].question.length < 45){
+                        if (newData.data[d].question.length < 58){
 
                             svg.append('text')
                                 .attr("x", 20)
@@ -189,34 +193,35 @@
 
                         }
 
-                        else{
+                        else {
 
-                            var breakPoint = null;
+                            var noOfRows = Math.floor( newData.data[d].question.length / 58 );
 
-                            for (var b=45; b>=0; b--){
-                                if (newData.data[d].question.substr(b,1) == ' '){
-                                    breakPoint = b;
-                                    break;
+                            var breakPoints = [];
+                            var textRows = [];
+
+                            for (var r=0; r<noOfRows; r++){
+
+                                for (var b = (r>0 ? breakPoints[r-1] : 0) + 59; b>=0; b--){
+                                    if (newData.data[d].question.substr(b,1) == ' '){
+                                        breakPoints.push(b);
+                                        break;
+                                    }
                                 }
+
+                                var textStart = r>0 ? breakPoints[r-1] : 0;
+                                var textLength = breakPoints[r] - textStart;
+
+                                svg.append('text')
+                                    .attr("x", 20)
+                                    .attr("y", rowStart + 56 - 14 * noOfRows / 2 + r * 14)
+                                    .text(newData.data[d].question.substr(textStart, textLength))
+                                    .attr("fill", '#414141')
+                                    .attr("text-anchor", "start")
+                                    .style("font-family", "Arial")
+                                    .style("font-size", "16px");
+
                             }
-
-                            svg.append('text')
-                                .attr("x", 20)
-                                .attr("y", rowStart + 49)
-                                .text(newData.data[d].question.substr(0,breakPoint))
-                                .attr("fill", '#414141')
-                                .attr("text-anchor", "start")
-                                .style("font-family", "Arial")
-                                .style("font-size", "16px");
-
-                            svg.append('text')
-                                .attr("x", 20)
-                                .attr("y", rowStart + 63)
-                                .text(newData.data[d].question.substr(breakPoint+1))
-                                .attr("fill", '#414141')
-                                .attr("text-anchor", "start")
-                                .style("font-family", "Arial")
-                                .style("font-size", "16px");
 
                         }
 
@@ -324,6 +329,40 @@
                             .style("font-size", "14px");
 
                     }
+
+                    //Convert to PNG
+                    var chartHtml = d3.select('#chartSVG')
+                        .attr("version", 1.1)
+                        .attr("xmlns", "http://www.w3.org/2000/svg")
+                        .node().parentNode.innerHTML;
+
+                    var imgSrc = 'data:image/svg+xml;base64,'+ btoa(chartHtml);
+
+                    var canvas = document.createElement("canvas");
+                    var context = canvas.getContext("2d");
+                    canvas.height = height;
+                    canvas.width = width;
+
+                    var newImg = new Image;
+                    newImg.src = imgSrc;
+                    newImg.onload = function(){
+
+                        context.drawImage(newImg, 0, 0, width, height);
+
+                        var canvasData = canvas.toDataURL("image/png");
+                        $('#downloadButton').attr('href', canvasData);
+                        $('#png').attr('src', canvasData);
+                        var now = new Date();
+                        var nowText = 
+                            ('0' + now.getDate()).slice(-2) + '-' +
+                            ('0' + (now.getMonth()+1)).slice(-2) + '-' +
+                            now.getFullYear() + ' ' +
+                            ('0' + now.getHours()).slice(-2) + '-' +
+                            ('0' + now.getMinutes()).slice(-2) + '-' +
+                            ('0' + now.getSeconds()).slice(-2)
+                        $('#downloadButton').attr('download', 'Likert Chart '+nowText);
+
+                    };
 
                 }, true);
             }

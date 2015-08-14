@@ -1,3 +1,4 @@
+<?xml version="1.0" standalone="no"?>
 <!DOCTYPE html>
 <html>
   <head>
@@ -10,7 +11,7 @@
   </head>
   <body ng-app="likert" ng-controller="likertCtrl as likert">
     <div class="container">
-      <h2>Likert graph creater</h2>
+      <h2>Likert graph creator</h2>
       <div class="well">
         <form class="form-horizontal">
           <div class="form-group">
@@ -65,8 +66,10 @@
           </div>
         </form>
       </div>
-      <div class="well" ng-show="likert.chartData.data.length > 0">
-        <table class="table table-striped">
+      <div class="well">
+        <h4>Rows added</h4>
+        <p ng-show="likert.chartData.data.length == 0" class="text-muted">No rows added yet.</p>
+        <table class="table table-striped" ng-show="likert.chartData.data.length > 0">
           <thead>
             <tr>
               <td>
@@ -90,7 +93,23 @@
           </tbody>
         </table>
       </div>
-      <div style="margin-top: 100px; margin-bottom: 100px;" likert-chart chart-data="likert.chartData"></div>
+      <div class="form-inline" style="margin-bottom: 20px;">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="likert.showPng">&nbsp;Show PNG version
+          </label>
+        </div>
+        <div class="checkbox" style="margin-left: 20px;">
+          <label>
+            <input type="checkbox" ng-model="likert.showSvg">&nbsp;Show SVG version
+          </label>
+        </div>
+      </div>
+      <img class="img-responsive" ng-show="likert.showPng" style="margin-top: 20px; margin-bottom: 20px;" id="png">
+      <div ng-show="likert.showSvg" style="margin-bottom: 20px;" likert-chart chart-data="likert.chartData"></div>
+      <div class="form-group">
+        <a href="" download="" class="btn btn-default" id="downloadButton"><span class="glyphicon glyphicon-download-alt"></span>&nbsp;Save image</a>
+      </div>
     </div>
   </body>
 </html>
