@@ -3,6 +3,8 @@
 <html>
   <head>
     <title>Likert chart creator</title>
+    <meta name="description" content="A tool built with angular.js and d3.js to create charts that visualise 5 point Likert data.">
+    <meta name="viewport" content="width=device-width">
     <link rel="stylesheet" href="./bootstrap.min.css">
     <script type="text/javascript" src="./jquery.min.js"></script>
     <script type="text/javascript" src="./d3.min.js"></script>
@@ -93,20 +95,8 @@
           </tbody>
         </table>
       </div>
-      <div class="form-inline" style="margin-bottom: 20px;">
-        <div class="checkbox">
-          <label>
-            <input type="checkbox" ng-model="likert.showPng">&nbsp;Show PNG version
-          </label>
-        </div>
-        <div class="checkbox" style="margin-left: 20px;">
-          <label>
-            <input type="checkbox" ng-model="likert.showSvg">&nbsp;Show SVG version
-          </label>
-        </div>
-      </div>
-      <img class="img-responsive" ng-show="likert.showPng" style="margin-top: 20px; margin-bottom: 20px;" id="png">
-      <div ng-show="likert.showSvg" style="margin-bottom: 20px;" likert-chart chart-data="likert.chartData"></div>
+      <img class="img-responsive" style="margin-top: 20px; margin-bottom: 20px; display:none;" id="png">
+      <div style="margin-bottom: 20px;" likert-chart chart-data="likert.chartData"></div>
       <div class="form-group">
         <a href="" download="" class="btn btn-default" id="downloadButton"><span class="glyphicon glyphicon-download-alt"></span>&nbsp;Save image</a>
       </div>

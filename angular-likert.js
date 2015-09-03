@@ -23,9 +23,6 @@
             five: null
         };
 
-        $scope.showPng = true;
-        $scope.showSvg = false;
-
         $scope.addRow = function(){
             if ($scope.likertForm.$invalid){
                 return false;
@@ -200,10 +197,10 @@
                             var breakPoints = [];
                             var textRows = [];
 
-                            for (var r=0; r<noOfRows; r++){
+                            for (var r=0; r<=noOfRows; r++){
 
                                 for (var b = (r>0 ? breakPoints[r-1] : 0) + 59; b>=0; b--){
-                                    if (newData.data[d].question.substr(b,1) == ' '){
+                                    if (newData.data[d].question.substr(b,1) == ' ' || b == newData.data[d].question.length){
                                         breakPoints.push(b);
                                         break;
                                     }
