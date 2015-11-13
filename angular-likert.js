@@ -3,47 +3,75 @@
 (function(){
 
     angular.module('likert', []);
+    var number = 4;
 
     var likertCtrl = function(){
 
-        var $scope = this;
+        var that = this;
 
-        $scope.chartData = {
-            data: [],
-            oneLabel: null,
-            fiveLabel: null
-        };
+        that.number = number;
 
-        $scope.newRow = {
-            question: null,
-            one: null,
-            two: null,
-            three: null,
-            four: null,
-            five: null
-        };
-
-        $scope.addRow = function(){
-            if ($scope.likertForm.$invalid){
+        that.updateNumber = function(){
+            if (typeof that.number != 'number' || that.number == number){
                 return false;
             }
-            $scope.chartData.data.push($.extend(true, {}, $scope.newRow));
-            $scope.newRow = {
-                question: null,
-                one: null,
-                two: null,
-                three: null,
-                four: null,
-            };
+            that.chartData.data = [];
+            that.chartData.labels = [];
+            that.newRow.responses = [];
+            number = parseInt(that.number);
+            for (var i=0; i<number; i++){
+                that.newRow.responses.push({response:null});
+                that.chartData.labels.push({label:null});
+            }
         };
 
-        $scope.removeRow = function(index){
-            $scope.chartData.data.splice(index, 1);
+        that.chartData = {
+            data: [],
+            labels: [{label:null},{label:null},{label:null},{label:null}],
+            chartType: 'bubbles'
+        };
+
+        that.newRow = {
+            question: null,
+            responses: [{response:null},{response:null},{response:null},{response:null}]
+        };
+
+        that.addRow = function(){
+            if (that.likertForm.$invalid){
+                return false;
+            }
+            that.chartData.data.push($.extend(true, {}, that.newRow));
+            that.newRow = {
+                question: null,
+                responses: []
+            };
+            for (var i=0; i<number; i++){
+                that.newRow.responses.push({response:null});
+            }
+        };
+
+        that.removeRow = function(index){
+            that.chartData.data.splice(index, 1);
         };
 
     };
 
     var likertChart = function(){
+
+        var colours = {
+            1: ['#CD7B00'],
+            2: ["#fc8d59","#91bfdb"],
+            3: ["#fc8d59","#ffffbf","#91bfdb"],
+            4: ["#d7191c","#fdae61","#abd9e9","#2c7bb6"],
+            5: ["#d7191c","#fdae61","#ffffbf","#abd9e9","#2c7bb6"],
+            6: ["#d73027","#fc8d59","#fee090","#e0f3f8","#91bfdb","#4575b4"],
+            7: ["#d73027","#fc8d59","#fee090","#ffffbf","#e0f3f8","#91bfdb","#4575b4"],
+            8: ["#d73027","#f46d43","#fdae61","#fee090","#e0f3f8","#abd9e9","#74add1","#4575b4"],
+            9: ["#d73027","#f46d43","#fdae61","#fee090","#ffffbf","#e0f3f8","#abd9e9","#74add1","#4575b4"],
+            10: ["#a50026","#d73027","#f46d43","#fdae61","#fee090","#e0f3f8","#abd9e9","#74add1","#4575b4","#313695"],
+            11: ["#a50026","#d73027","#f46d43","#fdae61","#fee090","#ffffbf","#e0f3f8","#abd9e9","#74add1","#4575b4","#313695"]
+        };
+
         return {
             restrict: 'AE',
             replace: true,
@@ -61,12 +89,17 @@
                     $element.html("");
                     var width = 1140;
 
-                    var hasOneLabel = newData.oneLabel != null && newData.oneLabel.length > 0;
-                    var hasFiveLabel = newData.fiveLabel != null && newData.fiveLabel.length > 0;
+                    var hasLabels = false;
+                    for (var i=0; i<newData.labels.length; i++){
+                        if(newData.labels[i].label != null){
+                            hasLabels = true;
+                            break;
+                        }
+                    }
 
                     var height = 
-                        ((hasOneLabel || hasFiveLabel) ? 100 : 80 )
-                         + 100 * newData.data.length + 30;
+                        (hasLabels ? 100 : 80 )
+                         + (newData.chartType == 'bubbles' ? 100 : 70) * newData.data.length + 30;
 
                     var svg = d3.select($element[0]).append('svg')
                         .attr('width', width)
@@ -81,8 +114,8 @@
                         .attr('width', width);
 
                     var topLinePoints = [
-                        {y:(hasOneLabel || hasFiveLabel) ? 100 : 80, x: 465},
-                        {y:(hasOneLabel || hasFiveLabel) ? 100 : 80, x: 1065},
+                        {y:hasLabels ? 100 : 80, x: 465},
+                        {y:hasLabels ? 100 : 80, x: 1065},
                     ];
 
                     var bottomLinePoints = [
@@ -100,11 +133,11 @@
                         .attr('stroke', '#999')
                         .attr('stroke-width', 1);
 
-                    for (var t=0; t<5; t++){
+                    for (var t=0; t<number; t++){
 
                         var topLineTickPoints = [
-                            {y:((hasOneLabel || hasFiveLabel) ? 100 : 80), x: 465+t*150},
-                            {y:((hasOneLabel || hasFiveLabel) ? 100 : 80)-10, x: 465+t*150},
+                            {y:(hasLabels ? 100 : 80), x: 465+t*600/(number-1)},
+                            {y:(hasLabels ? 100 : 80)-10, x: 465+t*600/(number-1)},
                         ];
 
                         svg.append('path')
@@ -113,7 +146,7 @@
                             .attr('stroke-width', 1);
                         
                         svg.append('text')
-                            .attr("x", 465+t*150)
+                            .attr("x", 465+t*600/(number-1))
                             .attr("y", 30)
                             .text(String(t+1))
                             .attr("fill", '#414141')
@@ -121,25 +154,12 @@
                             .style("font-family", "Arial")
                             .style("font-size", "16px");
 
-                        if (t==0 && hasOneLabel){
+                        if (newData.labels[t].label != null){
 
                             svg.append('text')
-                                .attr("x", 465+t*150)
+                                .attr("x", 465+t*600/(number-1))
                                 .attr("y", 54)
-                                .text(newData.oneLabel)
-                                .attr("fill", '#414141')
-                                .attr("text-anchor", "middle")
-                                .style("font-family", "Arial")
-                                .style("font-size", "16px");
-
-                        }
-
-                        if (t==4 && hasFiveLabel){
-
-                            svg.append('text')
-                                .attr("x", 465+t*150)
-                                .attr("y", 54)
-                                .text(newData.fiveLabel)
+                                .text(newData.labels[t].label)
                                 .attr("fill", '#414141')
                                 .attr("text-anchor", "middle")
                                 .style("font-family", "Arial")
@@ -148,8 +168,8 @@
                         }
 
                         var bottomLineTickPoints = [
-                            {y:height-30, x: 465+t*150},
-                            {y:height-20, x: 465+t*150},
+                            {y:height-30, x: 465+t*600/(number-1)},
+                            {y:height-20, x: 465+t*600/(number-1)},
                         ];
 
                         svg.append('path')
@@ -159,11 +179,45 @@
                         
                     }
 
+                    if (newData.chartType == 'stackedBar'){
+
+                        var maxDistance = 0;
+                        var leftEnd = number % 2 != 0 ? (number-1)/2 : number/2;
+                        var rightStart = number % 2 != 0 ? leftEnd + 2 : leftEnd + 1;
+                        var centre = number %2 != 0 ? leftEnd + 1 : null;
+
+                        for (var d=0; d<newData.data.length; d++){
+                            var leftAmount = 0;
+                            var rightAmount = 0;
+                            var totalAmount = 0;
+                            for (var i=0; i<number; i++){
+                                totalAmount += newData.data[d].responses[i].response;
+                                if(i+1<=leftEnd){
+                                    leftAmount += newData.data[d].responses[i].response;
+                                }
+                                else if (i+1>= rightStart){
+                                    rightAmount += newData.data[d].responses[i].response;
+                                }
+                                else{
+                                    rightAmount += newData.data[d].responses[i].response / 2
+                                    leftAmount += newData.data[d].responses[i].response / 2
+                                }
+                            }
+
+                            var biggerAmount = Math.max(leftAmount,rightAmount);
+
+                            if (biggerAmount * 100 / totalAmount > maxDistance){
+                                maxDistance = biggerAmount * 100 / totalAmount;
+                            }
+                        }
+
+                    }
+
                     for (var d=0; d<newData.data.length; d++){
 
-                        var rowStart = ((hasOneLabel || hasFiveLabel) ? 100 : 80 ) + d * 100;
+                        var rowStart = (hasLabels ? 100 : 80 ) + d * (newData.chartType == 'bubbles' ? 100 : 70);
 
-                        if (d>0){
+                        if (d>0 && newData.chartType == 'bubbles'){
 
                             var rowLineTickPoints = [
                                 {y:rowStart, x: 465},
@@ -181,7 +235,7 @@
 
                             svg.append('text')
                                 .attr("x", 20)
-                                .attr("y", rowStart + 56)
+                                .attr("y", rowStart + (newData.chartType == 'bubbles' ? 56 : 41))
                                 .text(newData.data[d].question)
                                 .attr("fill", '#414141')
                                 .attr("text-anchor", "start")
@@ -211,7 +265,7 @@
 
                                 svg.append('text')
                                     .attr("x", 20)
-                                    .attr("y", rowStart + 56 - 14 * noOfRows / 2 + r * 14)
+                                    .attr("y", rowStart + (newData.chartType == 'bubbles' ? 56 : 41) - 14 * noOfRows / 2 + r * 14)
                                     .text(newData.data[d].question.substr(textStart, textLength))
                                     .attr("fill", '#414141')
                                     .attr("text-anchor", "start")
@@ -222,109 +276,121 @@
 
                         }
 
-                        var totalParticipants = 
-                            newData.data[d].one +
-                            newData.data[d].two +
-                            newData.data[d].three +
-                            newData.data[d].four +
-                            newData.data[d].five;
+                        var totalParticipants = 0;
+                        for (var i=0; i<number; i++){
+                            totalParticipants += newData.data[d].responses[i].response;
+                        }
 
                         var calculateSize = function(percentage){
                             var size = 2 * Math.sqrt( 900 * percentage )
                             return size >= 6 ? size : 6;
                         };
 
-                        var oneCircleSize = calculateSize(newData.data[d].one/totalParticipants);
-                        var twoCircleSize = calculateSize(newData.data[d].two/totalParticipants);
-                        var threeCircleSize = calculateSize(newData.data[d].three/totalParticipants);
-                        var fourCircleSize = calculateSize(newData.data[d].four/totalParticipants);
-                        var fiveCircleSize = calculateSize(newData.data[d].five/totalParticipants);
+                        if (newData.chartType == 'bubbles'){
+
+                            for (var i=0; i<number; i++){
+
+                                var circleSize = calculateSize(newData.data[d].responses[i].response/totalParticipants);
+
+                                svg.append('circle')
+                                    .attr('stroke', '#504432')
+                                    .attr('fill', '#CD7B00')
+                                    .attr('fill-opacity', (circleSize-10)/50)
+                                    .attr('r', circleSize/2)
+                                    .attr('cx', 465+i*600/(number-1))
+                                    .attr('cy', rowStart + 40);
+
+                                svg.append('text')
+                                    .attr("x", 465+i*600/(number-1))
+                                    .attr("y", rowStart + 90)
+                                    .text((newData.data[d].responses[i].response*100/totalParticipants).toFixed(0)+'%')
+                                    .attr("fill", '#414141')
+                                    .attr("text-anchor", "middle")
+                                    .style("font-family", "Arial")
+                                    .style("font-size", "14px");
+
+                            }
+
+                        }
+                        else{
+                            var fullWidth = maxDistance * 2;
+                            var rightStartPoint = 765;
+                            var leftEndPoint = 765;
+
+                            if (centre != null){
+                                var barWidth = 600 * (newData.data[d].responses[centre-1].response * 100 / totalParticipants) / fullWidth;
+
+                                svg.append('rect')
+                                    .attr('x', 765 - barWidth/2)
+                                    .attr('y', rowStart + 5)
+                                    .attr('fill', colours[String(number)][centre-1])
+                                    .attr('height', 60)
+                                    .attr('stroke', '#414141')
+                                    .attr('stroke-width', 1)
+                                    .attr('width', barWidth);
+
+                                svg.append('text')
+                                    .attr("x", 765)
+                                    .attr("y", rowStart + 41)
+                                    .text((newData.data[d].responses[centre-1].response*100/totalParticipants).toFixed(0)+'%')
+                                    .attr("fill", '#414141')
+                                    .attr("text-anchor", "middle")
+                                    .style("font-family", "Arial")
+                                    .style("font-size", "14px");
+
+                                var rightStartPoint = 765 + barWidth / 2;
+                                var leftEndPoint = 765 - barWidth / 2;
+                            }
+                            for (var j=rightStart-1; j<number; j++){
+                                
+                                var barWidth = 600 * (newData.data[d].responses[j].response * 100 / totalParticipants) / fullWidth;
+
+                                svg.append('rect')
+                                    .attr('x', rightStartPoint)
+                                    .attr('y', rowStart + 5)
+                                    .attr('fill', colours[String(number)][j])
+                                    .attr('height', 60)
+                                    .attr('stroke', '#414141')
+                                    .attr('stroke-width', 1)
+                                    .attr('width', barWidth);
+
+                                svg.append('text')
+                                    .attr("x", rightStartPoint + barWidth / 2)
+                                    .attr("y", rowStart + 41)
+                                    .text((newData.data[d].responses[j].response*100/totalParticipants).toFixed(0)+'%')
+                                    .attr("fill", '#414141')
+                                    .attr("text-anchor", "middle")
+                                    .style("font-family", "Arial")
+                                    .style("font-size", "14px");
+
+                                rightStartPoint += barWidth;
+                            }
+                            for (var j=leftEnd-1; j>=0; j--){
+                                
+                                var barWidth = 600 * (newData.data[d].responses[j].response * 100 / totalParticipants) / fullWidth;
+
+                                svg.append('rect')
+                                    .attr('x', leftEndPoint-barWidth)
+                                    .attr('y', rowStart + 5)
+                                    .attr('fill', colours[String(number)][j])
+                                    .attr('height', 60)
+                                    .attr('stroke', '#414141')
+                                    .attr('stroke-width', 1)
+                                    .attr('width', barWidth);
+
+                                svg.append('text')
+                                    .attr("x", leftEndPoint - barWidth / 2)
+                                    .attr("y", rowStart + 41)
+                                    .text((newData.data[d].responses[j].response*100/totalParticipants).toFixed(0)+'%')
+                                    .attr("fill", '#414141')
+                                    .attr("text-anchor", "middle")
+                                    .style("font-family", "Arial")
+                                    .style("font-size", "14px");
+
+                                leftEndPoint -= barWidth;
+                            }
+                        }
                         
-                        svg.append('circle')
-                            .attr('stroke', '#504432')
-                            .attr('fill', '#CD7B00')
-                            .attr('fill-opacity', (oneCircleSize-10)/50)
-                            .attr('r', oneCircleSize/2)
-                            .attr('cx', 465)
-                            .attr('cy', rowStart + 40);
-
-                        svg.append('text')
-                            .attr("x", 465)
-                            .attr("y", rowStart + 90)
-                            .text((newData.data[d].one*100/totalParticipants).toFixed(0)+'%')
-                            .attr("fill", '#414141')
-                            .attr("text-anchor", "middle")
-                            .style("font-family", "Arial")
-                            .style("font-size", "14px");
-
-                        svg.append('circle')
-                            .attr('stroke', '#504432')
-                            .attr('fill', '#CD7B00')
-                            .attr('fill-opacity', (twoCircleSize-10)/50)
-                            .attr('r', twoCircleSize/2)
-                            .attr('cx', 615)
-                            .attr('cy', rowStart + 40);
-
-                        svg.append('text')
-                            .attr("x", 615)
-                            .attr("y", rowStart + 90)
-                            .text((newData.data[d].two*100/totalParticipants).toFixed(0)+'%')
-                            .attr("fill", '#414141')
-                            .attr("text-anchor", "middle")
-                            .style("font-family", "Arial")
-                            .style("font-size", "14px");
-
-                        svg.append('circle')
-                            .attr('stroke', '#504432')
-                            .attr('fill', '#CD7B00')
-                            .attr('fill-opacity', (threeCircleSize-10)/50)
-                            .attr('r', threeCircleSize/2)
-                            .attr('cx', 765)
-                            .attr('cy', rowStart + 40);
-
-                        svg.append('text')
-                            .attr("x", 765)
-                            .attr("y", rowStart + 90)
-                            .text((newData.data[d].three*100/totalParticipants).toFixed(0)+'%')
-                            .attr("fill", '#414141')
-                            .attr("text-anchor", "middle")
-                            .style("font-family", "Arial")
-                            .style("font-size", "14px");
-
-                        svg.append('circle')
-                            .attr('stroke', '#504432')
-                            .attr('fill', '#CD7B00')
-                            .attr('fill-opacity', (fourCircleSize-10)/50)
-                            .attr('r', fourCircleSize/2)
-                            .attr('cx', 915)
-                            .attr('cy', rowStart + 40);
-
-                        svg.append('text')
-                            .attr("x", 915)
-                            .attr("y", rowStart + 90)
-                            .text((newData.data[d].four*100/totalParticipants).toFixed(0)+'%')
-                            .attr("fill", '#414141')
-                            .attr("text-anchor", "middle")
-                            .style("font-family", "Arial")
-                            .style("font-size", "14px");
-
-                        svg.append('circle')
-                            .attr('stroke', '#504432')
-                            .attr('fill', '#CD7B00')
-                            .attr('fill-opacity', (fiveCircleSize-10)/50)
-                            .attr('r', fiveCircleSize/2)
-                            .attr('cx', 1065)
-                            .attr('cy', rowStart + 40);
-
-                        svg.append('text')
-                            .attr("x", 1065)
-                            .attr("y", rowStart + 90)
-                            .text((newData.data[d].five*100/totalParticipants).toFixed(0)+'%')
-                            .attr("fill", '#414141')
-                            .attr("text-anchor", "middle")
-                            .style("font-family", "Arial")
-                            .style("font-size", "14px");
-
                     }
 
                     //Convert to PNG
